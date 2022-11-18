@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Steeltoe.Management.Endpoint;
 using Steeltoe.Management.Tracing;
 
@@ -10,13 +11,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-# region Steeltoe
-builder.AddAllActuators();
+builder.Services.AddDbContext<API.Domain.TodoDbContext>(opts =>
+{
+    opts.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
+builder.AddAllActuators();
 builder.Services.AddDistributedTracingAspNetCore();
-# endregion
 
 var app = builder.Build();
+
+await using var scope = app.Services.CreateAsyncScope();
+await using var dbContext = scope.ServiceProvider.GetRequiredService<API.Domain.TodoDbContext>();
+await dbContext.Database.EnsureCreatedAsync();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
