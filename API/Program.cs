@@ -1,4 +1,6 @@
+using API.Config;
 using Microsoft.EntityFrameworkCore;
+using Steeltoe.Extensions.Configuration.Placeholder;
 using Steeltoe.Management.Endpoint;
 using Steeltoe.Management.Tracing;
 
@@ -18,6 +20,8 @@ builder.Services.AddDbContext<API.Domain.TodoDbContext>(opts =>
 
 builder.AddAllActuators();
 builder.Services.AddDistributedTracingAspNetCore();
+builder.AddPlaceholderResolver();
+builder.Services.Configure<SampleOptions>(builder.Configuration);
 
 var app = builder.Build();
 
